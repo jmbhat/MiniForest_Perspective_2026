@@ -1,0 +1,38 @@
+# ============ GENERATED OUTPUTS (Never commit) ============
+figures/
+tables/
+output/
+results/
+*.png
+*.pdf
+*.jpg
+*.svg
+
+# ============ TEMPORARY/CACHE FILES ============
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+venv/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ============ KEEP DATA FILES ============
+# data/raw/ is committed (original files only)
