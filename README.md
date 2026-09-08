@@ -1,4 +1,4 @@
-# Mini Forests need evidence, not just enthusiasm
+# Urban Mini Forests need evidence, not just enthusiasm
 
 Analysis code and data for the Nature Cities Perspective
 (Bhatnagar, Hutyra, Raeber, Winbourne, Templer).
@@ -72,9 +72,6 @@ is retained in four places, where changing it would be inaccurate or would break
 - **classification values in the data** — `Miyawaki`, `Likely_Miyawaki`, `Not_Miyawaki`,
   `About_Miyawaki`, `Likely_About_Miyawaki_RawHTML` are stored category labels in the
   deposited workbooks, and the scripts match against them;
-- **column headings in the academic workbook** — e.g. `Empirical data on Miyawaki forest?`,
-  `Replicated Miyawaki forests?`, `Miyawaki forest age (years)`, which the figure scripts
-  look up by name; and
 - **the citation "Miyawaki 1993"**, which is Akira Miyawaki's own paper.
 
 ## Scope of this deposit
