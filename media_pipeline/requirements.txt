@@ -1,0 +1,14 @@
+# Media pipeline dependencies (Python 3.10+)
+
+# 01_title_classifier.py, 03_media_merge_dedup.py
+pandas
+openpyxl
+xlrd            # reading the legacy .xls ProQuest exports (Step 4)
+
+# 02_verify_bodies.py — fetching and extracting article body text
+requests
+trafilatura
+readability-lxml
+lxml_html_clean
+beautifulsoup4
+tqdm

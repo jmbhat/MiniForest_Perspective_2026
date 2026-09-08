@@ -1,0 +1,16 @@
+municipality,state,site,planting_type,year,capital_cost_usd,area_sqft,trees,plant_purchase_usd,site_prep,plants,installation,maintenance,source
+Brookline,MA,Ridley School,mini_forest,2025,7100,1741,232,,included,included,excluded,excluded,Municipal staff communication; site planting list
+Worcester,MA,McGrath + Plumley,mini_forest,2024,466000,14500,120,,included,included,partial,partial,City of Worcester RFP 8090-W4 and Bid 8166-M4
+Providence,RI,Pearl Street,mini_forest,2025,20000,1000,187,,included,included,excluded,excluded,Earth Economics et al. 2026
+Providence,RI,Prairie Avenue,mini_forest,2024,18000,550,41,,included,included,excluded,excluded,Earth Economics et al. 2026
+Elizabeth,NJ,Elmora Microfarm,mini_forest,2021,80000,2000,225,,included,included,excluded,excluded,Earth Economics et al. 2025a
+Elizabeth,NJ,O'Donnell Dempsey,mini_forest,2023,68000,1650,175,,included,included,excluded,excluded,Earth Economics et al. 2025a
+Elizabeth,NJ,Kennedy Arms,mini_forest,2022,75000,1750,200,,included,included,excluded,excluded,Earth Economics et al. 2025a
+Yonkers,NY,Obama School,mini_forest,2024,20900,1015,282,,included,included,excluded,excluded,Earth Economics et al. 2025b
+Cranston,RI,Residential yard tree,individual_tree,2025,330,,1,182.50,excluded,included,included,excluded,Municipal staff communication
+Worcester,MA,Street / park tree,individual_tree,2025,491,,1,,excluded,included,included,excluded,City of Worcester Bid CR-8297-M5
+Bristol,RI,Street / park tree,individual_tree,2025,570,,1,170,included,included,included,partial,Municipal staff communication
+Providence,RI,Street tree,individual_tree,2023,600,,1,,included,included,included,not_reported,City of Providence Parks Department 2023
+Brookline,MA,Street / park tree,individual_tree,2025,620,,1,500,excluded,included,included,excluded,Municipal staff communication
+Newport,RI,Street tree,individual_tree,2025,900,,1,300,included,included,included,included,Municipal staff communication
+Brookline,MA,Larz Anderson Park,turfgrass,2025,3515.30,95832,,,excluded,included,included,excluded,Municipal staff communication

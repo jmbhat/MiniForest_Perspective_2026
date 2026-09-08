@@ -3,7 +3,7 @@
 Media Step 2 — title-only relevance classifier.
 =================================================================
 
-VALIDATION (run against `classification_v1` in CLAUDE_Miyawaki_merged_corpus.xlsx,
+VALIDATION (run against `classification_v1` in Mini_Forest_merged_media_corpus.xlsx,
             2,328 English MediaCloud-origin rows):
     - Exact 8-class agreement ............ 97.0%
     - `Miyawaki` (literal keyword) ....... 354 / 354  (exact)
@@ -68,9 +68,24 @@ def validate(corpus_xlsx):
     print("on-topic binary:    %.1f%%" % (100 * (ot(gt) == ot(pred)).mean()))
 
 
+def apply(corpus_xlsx, out_xlsx, sheet="Merged_corpus"):
+    """Apply classify() to every row and write the result to a new workbook."""
+    df = pd.read_excel(corpus_xlsx, sheet_name=sheet)
+    df["classification"] = [classify(r.title, getattr(r, "url", "")) for r in df.itertuples()]
+    df.to_excel(out_xlsx, sheet_name="All_classified", index=False)
+    print("wrote %s  (%d rows)" % (out_xlsx, len(df)))
+    for k, v in df["classification"].value_counts().items():
+        print("   %-24s %d" % (k, v))
+
+
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        validate(sys.argv[1])
+    import argparse
+    ap = argparse.ArgumentParser(description="Media Step 2 - title-only relevance classifier.")
+    ap.add_argument("xlsx", help="corpus workbook to read")
+    ap.add_argument("--sheet", default="Merged_corpus", help="sheet to read (default: Merged_corpus)")
+    ap.add_argument("--out", help="write classified rows to this .xlsx instead of validating")
+    a = ap.parse_args()
+    if a.out:
+        apply(a.xlsx, a.out, a.sheet)
     else:
-        print("usage: python recon_step2_title_classifier.py <CLAUDE_Miyawaki_merged_corpus.xlsx>")
+        validate(a.xlsx)

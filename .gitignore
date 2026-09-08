@@ -1,38 +1,33 @@
-# ============ GENERATED OUTPUTS (Never commit) ============
-figures/
-tables/
-output/
-results/
-*.png
-*.pdf
-*.jpg
-*.svg
-
-# ============ TEMPORARY/CACHE FILES ============
-# Python
-__pycache__/
-*.pyc
-.pytest_cache/
-.ipynb_checkpoints/
-*.egg-info/
-.venv/
-venv/
-
-# R
+# macOS / R / Python cruft
+.DS_Store
 .Rhistory
 .RData
 .Rproj.user/
-*.Rproj
+__pycache__/
+*.pyc
+*.bak
+*.bak_*
+~$*
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+# Excel lock files
+~$*.xlsx
+~$*.xls
 
-# OS
-.DS_Store
-Thumbs.db
+# Script caches (created at run time)
+_body_cache/
+_claim_cache/
 
-# ============ KEEP DATA FILES ============
-# data/raw/ is committed (original files only)
+# Generated output — the scripts write these into the working directory.
+# Regenerate by running them; they are not tracked.
+Figure1_mini_forest_media_vs_research_2015-2025.*
+Figure2_Mini_Forest_evidence_matrix.*
+FigureS1_Mini_Forest_combined_evidence_figure.*
+Mini_Forest_combined_evidence_figure.*
+Figure2_service_assignments.csv
+TableS1_condensed_vs_verbatim.csv
+TableS1_evidence_text.docx
+table1_summary.csv
+matched_comparisons.csv
+locale_classification.csv
+tcusa_summary.csv
+Rplots.pdf
