@@ -50,27 +50,24 @@ python media_pipeline/03_media_merge_dedup.py data/Mini_Forest_merged_media_corp
 ```
 
 Run without `--out`, `01` and `03` instead report how closely they reproduce the stored
-corpus. `02` writes back into the workbook you point it at — copy the file first if you want
-the deposited version left untouched.
+corpus. `02` writes back into the input workbook.
 
 For the cost analysis, see [costs/README.md](costs/README.md); those three scripts run
-`01` → `03` → `02` and need public data files too large to redistribute here.
+`01` → `03` → `02` and need public data files.
 
 ### A note on PDF fonts
 
 The figure scripts request `cairo_pdf` and fall back to base `pdf()` if cairo is
 unavailable. The fallback does **not** embed fonts. On macOS, cairo needs XQuartz
 (`brew install --cask xquartz`); without it `capabilities("cairo")` can still report
-`TRUE` while the device fails at run time. If the PDFs matter, check that
-`strings figures/FILE.pdf | grep -c FontFile` returns a non-zero count. SVG and PNG
-output are unaffected.
+`TRUE` while the device fails during run.
 
 ## A note on terminology
 
 The plantings are called **Mini Forests** throughout this repository. The word "Miyawaki"
 is retained in four places, where changing it would be inaccurate or would break the code:
 
-- **the media search term** — the MediaCloud and ProQuest queries literally searched for
+- **the media search term** — the MediaCloud and ProQuest queries searched for
   `Miyawaki`, and the manuscript's Supplementary Methods reproduces those Boolean strings as run;
 - **classification values in the data** — `Miyawaki`, `Likely_Miyawaki`, `Not_Miyawaki`,
   `About_Miyawaki`, `Likely_About_Miyawaki_RawHTML` are stored category labels in the
@@ -80,31 +77,15 @@ is retained in four places, where changing it would be inaccurate or would break
   look up by name; and
 - **the citation "Miyawaki 1993"**, which is Akira Miyawaki's own paper.
 
-Everything else — prose, comments, figure labels, file names and output names — says
-Mini Forest.
-
 ## Scope of this deposit
 
 This contains the code that produced the published results. Media Steps 2–4 are in `media_pipeline/`,
 Step 3's output (`Body_verified`) and the curated corpus are in the deposited workbook, and
-Steps 1 and 5 are manual (keyword searching and Excel curation respectively).
-
-The Step 2 and Step 4 scripts encode the rules given in the manuscript's Supplementary Methods (§6.1
-title-classifier categories; §6.3 dedup keys). They reproduce the recorded corpus closely but
-not to the row: Step 2 agrees with the stored `classification_v1` on 97.0% of titles (99.1% on
-the on-topic binary distinction that Figure 1 depends on), and Step 4 reproduces 5,020 of the
-5,075 recorded records. The residual difference comes from title-normalisation edge cases and
-the outlet-alias crosswalk. Run either script without `--out` to reproduce those comparisons.
+Steps 1 and 5 are manual (keyword searching and Excel curation respectively). The Step 2 and Step 4 scripts encode the rules given in the manuscript's Supplementary Methods (title-classifier categories; dedup keys).
 
 ## Data availability and provenance
 
-The three workbooks in `data/` are the working corpora, deposited as used. The academic
-workbook's `Access?` column — institutional proxy links to full texts — has been removed;
-every other column is as coded, including the verbatim `Measurements`, `Results` and
-`Notes` fields that the figure scripts read.
-
-Costs for six of the eight Mini Forests are capital costs reported in published
-benefit–cost analyses of those projects, so that dataset is not independent of the grey
+The three workbooks in `data/` are the working dataset reported in the manuscript. Costs for six of the eight Mini Forests are capital costs reported in published benefit–cost analyses of those projects, so that dataset is not independent of the grey
 literature; see `costs/README.md` for the full provenance and limitations.
 
 ## License
