@@ -168,8 +168,8 @@ print(doc, target = "TableS1_evidence_text.docx")
 ################################################################################
 # STEP 8 - Check the condensed text against the verbatim spreadsheet cells
 #          The table above shows CONDENSED wording. The verbatim 'Measurements'
-#          and 'Results' cells travel in the assignments CSV, so they can be read
-#          straight off `assign` - no re-matching of study names required.
+#          cells travel in the assignments CSV, so they can be read straight off
+#          `assign` - no re-matching of study names required.
 ################################################################################
 
 review <- data.frame(
@@ -177,7 +177,6 @@ review <- data.frame(
   Described             = tableS1$Described,                                     # condensed wording shown in the table
   Measurements_verbatim = assign$measurements_verbatim,                          # what the workbook actually says
   Found                 = tableS1$Found,                                         # condensed wording shown in the table
-  Results_verbatim      = assign$results_verbatim,                               # what the workbook actually says
   stringsAsFactors = FALSE)
 
 nrow(review)                                                                     # <-- look: 19, no duplicated rows

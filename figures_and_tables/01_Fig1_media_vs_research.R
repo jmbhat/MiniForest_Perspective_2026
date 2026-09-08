@@ -48,10 +48,10 @@ papers <- data.frame(
   Authors   = as.character(paper_raw$`Authors`),                                                                   # first author string
   Year      = as.integer(regmatches(as.character(paper_raw$`Year`), regexpr("[0-9]{4}", as.character(paper_raw$`Year`)))),  # first 4-digit year in the cell
   indexed   = grepl("^yes", tolower(trimws(as.character(paper_raw$`Index`)))),                                     # indexed in Scopus or Web of Science
-  empirical = grepl("^yes", tolower(trimws(as.character(paper_raw$`Empirical data on Miyawaki forest?`)))),         # reported field-measured data
+  empirical = grepl("^yes", tolower(trimws(as.character(paper_raw$`Empirical data on Mini Forest?`)))),         # reported field-measured data
   peer_rev  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Peer reviewed?`)))),                            # peer reviewed
   comp_tree = grepl("^yes", tolower(trimws(as.character(paper_raw$`Comparison to other types of urban tree planting?`)))),  # compared to another urban tree planting
-  rep_mini  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Replicated Miyawaki forests?`)))),              # >1 replicated Mini Forest
+  rep_mini  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Replicated Mini Forests?`)))),              # >1 replicated Mini Forest
   rep_comp  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Replicated Comparison plots?`)))),              # >1 replicated comparison plot
   stat_tree = grepl("^yes", tolower(trimws(as.character(paper_raw$`Statistical tests of claim against other types of urban tree planting?`)))),  # stats vs. tree planting
   stat_gree = grepl("^yes", tolower(trimws(as.character(paper_raw$`Statistical tests of claim against other types of urban greening?`)))),       # stats vs. urban greening

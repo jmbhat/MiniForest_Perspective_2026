@@ -4,7 +4,7 @@
 #
 # Source : Mini_Forest_academic_corpus.xlsx, sheet 'Paper_analysis'
 # Filters: Peer reviewed = Yes; Index (SC/WOS) = Yes;
-#          Empirical data on Miyawaki forest = Yes
+#          Empirical data on Mini Forest = Yes
 #
 # 2026-07-30: rebuilt to READ THE WORKBOOK DIRECTLY instead of a hard-coded
 # 9-row table. The refreshed spreadsheet yields n = 19 studies matching the
@@ -22,7 +22,7 @@
 #     Biodiversity; else Well-being. Within a block, chronological. (Carbon top,
 #     Well-being bottom.)
 #   * "Type of data described" is pulled from the 'Measurements' column and
-#     "Result" from the 'Results' column, but BOTH are shown as CONDENSED 1-2
+#     "Result" from a built-in lookup, and BOTH are shown as CONDENSED 1-2
 #     line versions (lookup tables .TEXT_DISP / .RES_DISP below) so cells stay
 #     small and the figure does not blow up. The condensed text is display-only:
 #     the measurement DOTS are still derived from the VERBATIM 'Measurements'
@@ -110,18 +110,17 @@ papers <- tibble(
   auth   = gcol("Authors"),
   yr     = .year_num,
   idx    = yn(gcol("Index")),
-  emp    = yn(gcol("Empirical data on Miyawaki")),
+  emp    = yn(gcol("Empirical data on Mini Forest")),
   pr     = yn(gcol("Peer reviewed")),
   urban  = yn(gcol("In urban area")) == "yes",
   dtraw  = tolower(chr(gcol("Data type"))),
   text   = chr(gcol("Measurements")),                 # VERBATIM measurements (drives dots)
   cv     = yn(gcol("Comparison to other types of vegetation")),
   cu     = yn(gcol("Comparison to other types of urban tree planting")),
-  rm     = yn(gcol("Replicated Miyawaki")),
+  rm     = yn(gcol("Replicated Mini Forest")),
   rc     = yn(gcol("Replicated Comparison")),
   sp     = yn(gcol("Statistical tests of claim against other types of urban tree planting")),
-  age    = chr(gcol("Miyawaki forest age")),          # Mini Forest age (years) — free text (may be a list/range/"Unknown")
-  result = chr(gcol("Results"))                       # VERBATIM result text
+  age    = chr(gcol("Mini Forest age"))           # Mini Forest age (years) — free text (may be a list/range/"Unknown")
 ) %>%
   filter(!is.na(auth), pr == "yes", idx == "yes", emp == "yes") %>%
   mutate(
@@ -240,7 +239,6 @@ assignments <- tibble(
   # has to re-derive "Surname Year" from the Authors column (that collapses
   # different papers onto the same key).
   measurements_verbatim = papers$text,
-  results_verbatim      = papers$result
 )
 write_csv(assignments, "Figure2_service_assignments.csv")
 message(sprintf("Service assignments for %d studies -> Figure2_service_assignments.csv", nrow(assignments)))

@@ -65,15 +65,15 @@ col <- function(...) {
   stop(sprintf("Column not found: %s", paste(opts, collapse = ", ")))
 }
 C <- list(AUTH = col("Authors"), YEAR = col("Year"), IDX = col("Index"), QD = col("QD"),
-          URBAN = col("In urban area"), EMP = col("Empirical data on Miyawaki"),
+          URBAN = col("In urban area"), EMP = col("Empirical data on Mini Forest"),
           MEAS = col("Measurements"), DTYPE = col("Data type"), PR = col("Peer reviewed"), HJ = col("Hijacked", "predatory"),
           CV = col("Comparison to other types of vegetation"),
           CG = col("Comparison to other types of urban greening"),
           CU = col("Comparison to other types of urban tree planting"),
-          RM = col("Replicated Miyawaki"), RC = col("Replicated Comparison"),
+          RM = col("Replicated Mini Forest"), RC = col("Replicated Comparison"),
           SG = col("Statistical tests of claim against other types of urban greening"),
           SP = col("Statistical tests of claim against other types of urban tree planting"),
-          AGE = col("Miyawaki forest age"))
+          AGE = col("Mini Forest age"))
 
 Auth  <- as.character(body[[C$AUTH]])
 yrcell <- as.character(body[[C$YEAR]])
