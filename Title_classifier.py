@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Mdia Step 2 — title-only relevance classifier.
+Media Step 2 — title-only relevance classifier.
 =================================================================
 
 VALIDATION (run against `classification_v1` in CLAUDE_Miyawaki_merged_corpus.xlsx,
