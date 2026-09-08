@@ -65,14 +65,16 @@ unavailable. The fallback does **not** embed fonts. On macOS, cairo needs XQuart
 ## A note on terminology
 
 The plantings are called **Mini Forests** throughout this repository. The word "Miyawaki"
-is retained in four places, where changing it would be inaccurate or would break the code:
+is retained in three places, where changing it would be inaccurate or would break the code:
 
 - **the media search term** — the MediaCloud and ProQuest queries searched for
   `Miyawaki`, and the manuscript's Supplementary Methods reproduces those Boolean strings as run;
 - **classification values in the data** — `Miyawaki`, `Likely_Miyawaki`, `Not_Miyawaki`,
   `About_Miyawaki`, `Likely_About_Miyawaki_RawHTML` are stored category labels in the
   deposited workbooks, and the scripts match against them;
-- **the citation "Miyawaki 1993"**, which is Akira Miyawaki's own paper.
+- **published paper titles and the author name** in the academic corpus — 52 study
+  titles contain "Miyawaki", as does the citation "Miyawaki 1993", Akira Miyawaki's
+  own paper.
 
 ## Scope of this deposit
 

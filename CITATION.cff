@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code or data, please cite the paper below."
-title: "Mini Forests need evidence, not just enthusiasm: analysis code and data"
+title: "Urban Mini Forests need evidence, not just enthusiasm: analysis code and data"
 abstract: >-
   Analysis code and data for a Nature Cities Perspective on Mini Forests
   (Miyawaki-method plantings): a media-coverage corpus of 5,075 English-language
@@ -31,7 +31,7 @@ keywords:
   - media analysis
 preferred-citation:
   type: article
-  title: "Mini Forests need evidence, not just enthusiasm"
+  title: "Urban Mini Forests need evidence, not just enthusiasm"
   journal: "Nature Cities"
   year: 2026
   authors:
