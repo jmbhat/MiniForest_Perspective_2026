@@ -8,7 +8,7 @@ The paper has three data components:
 1. a **media-coverage corpus** — 5,075 unique English-language news articles, 2015–2025,
    from MediaCloud and ProQuest International Newsstream;
 2. an **academic-literature synthesis** — 108 Mini Forest studies from Web of Science,
-   Dimensions and Google Scholar, hand-coded for study design and measurement; and
+   Dimensions and Google Scholar, manually assessed for study design and measurement; and
 3. a **municipal cost comparison** — capital costs of Mini Forests, individual tree
    plantings and turfgrass across Northeast U.S. municipalities.
 
@@ -116,7 +116,7 @@ commercially, provided you give appropriate credit.
 Please cite the paper:
 
 > Bhatnagar, J.M., Hutyra, L.R., Raeber, M., Winbourne, J.B. & Templer, P.H.
-> Mini Forests need evidence, not just enthusiasm. *Nature Cities* (in review).
+> Urban Mini Forests need evidence, not just enthusiasm. *Nature Cities* (in review).
 
 Note that the media corpora are derived from MediaCloud and ProQuest International
 Newsstream records. The bibliographic metadata is redistributed here for
