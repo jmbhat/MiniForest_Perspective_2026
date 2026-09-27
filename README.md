@@ -1,6 +1,6 @@
-# Urban Mini Forests need evidence, not just enthusiasm
+# Mini Forests need evidence, not just enthusiasm
 
-Analysis code and data for the Nature Cities Perspective
+Analysis code and data for the Perspective
 (Bhatnagar, Hutyra, Raeber, Winbourne, Templer).
 
 The paper has three data components:
@@ -96,7 +96,7 @@ commercially, provided you give appropriate credit.
 Please cite the paper:
 
 > Bhatnagar, J.M., Hutyra, L.R., Raeber, M., Winbourne, J.B. & Templer, P.H.
-> Urban Mini Forests need evidence, not just enthusiasm. *Nature Cities* (in review).
+> Urban Mini Forests need evidence, not just enthusiasm. 
 
 Note that the media corpora are derived from MediaCloud and ProQuest International
 Newsstream records. The bibliographic metadata is redistributed here for
