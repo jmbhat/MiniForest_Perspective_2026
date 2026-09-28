@@ -1,39 +1,37 @@
-# 02_tcusa_expenditure.R
+# 03_tcusa_expenditure.R
 # -----------------------------------------------------------------------------
-# Summarises annual municipal urban forestry expenditure in the Northeast U.S.
-# from the Arbor Day Foundation Tree City USA programme, and computes the share
-# of municipalities whose entire annual planting budget falls below the capital
+# Summarizes annual municipal urban forestry expenditure in the Northeast U.S.
+# from the Arbor Day Foundation Tree City USA program and computes the share
+# of municipalities whose entire annual planting budget falls below the
 # cost of a single Mini Forest.
 #
 # Input : TCUSA_Data2016_2025.xlsx        (obtain from the Arbor Day Foundation)
-#         output/locale_classification.csv (optional; produced by 03_*.R)
 # Output: output/tcusa_summary.csv
 #         console summary
 #
 # NOT INCLUDED IN THE REPO: the .xlsx must be obtained from the Arbor Day
 # Foundation and placed at the path in STEP 2 before this script will run.
 #
-# Sample caveats  Tree City USA participation is voluntary and conditional on a
+# Tree City USA participation is voluntary and conditional on a
 #   tree board, a tree-care ordinance, a minimum per-capita forestry
-#   expenditure and an annual Arbor Day observance. The sample is censored
-#   toward municipalities with an established forestry programme, so the
-#   percentages here are conservative. Expenditures are self-reported without
-#   audit and the programme defines no standard fiscal year.
+#   expenditure and an annual Arbor Day observance. The data are biased
+#   toward municipalities with an established forestry program, so the
+#   percentages are conservative. Expenditures are self-reported without
+#   audit by the Arbon Day Foundation.
 #
-# Run each STEP one at a time and inspect the named object it leaves behind.
 # =============================================================================
-
-library(readxl)                                                     # read the Arbor Day .xlsx
+#Read in required libraries
+library(readxl)                                                     # to read the Arbor Day .xlsx
 
 
 # STEP 1 -- constants: reporting year, region, money columns, reference costs -
 SHEET <- "Tree City USA 2016-2025"                                  # worksheet name inside the workbook
-YEAR  <- 2025                                                       # reporting year analysed
+YEAR  <- 2025                                                       # reporting year analyzed
 NORTHEAST <- c("Connecticut", "Maine", "Massachusetts", "New Hampshire",
                "New Jersey", "New York", "Pennsylvania", "Rhode Island", "Vermont")
 MONEY <- c("Planting Costs", "Maintenance Costs", "Removal Costs",
            "Management Costs", "Utility Line Clearance", "Other Expenditures",
-           "Total dollars")                                         # columns to coerce to numeric
+           "Total dollars")                                         # coerce columns to numeric
 MINI_FOREST_MEDIAN <- 44450                                         # from 01_cost_summary.R (Table 1)
 MINI_FOREST_MIN    <- 7100                                          # cheapest Mini Forest
 MINI_FOREST_MAX    <- 466000                                        # most expensive Mini Forest
@@ -47,22 +45,22 @@ tcusa_raw[MONEY] <- lapply(tcusa_raw[MONEY], function(x) suppressWarnings(as.num
 str(tcusa_raw[, c("Community", "State", "Year", MONEY)])           # <-- look: money columns now numeric
 
 
-# STEP 3 -- filter to the Northeast reporting year, PRIMARY dedup rule -------
-# The raw file carries duplicate municipality-year records (121 nationally, 54
+# STEP 3 -- filter to the Northeast reporting year -------
+# The raw file includes duplicate municipality-year records (121 nationally, 54
 # in the Northeast). Primary rule: keep the LARGER "Total dollars" of each pair.
 # Sort ascending, then keep the last of each Community+State group.
 ne <- tcusa_raw[tcusa_raw$Year == YEAR & tcusa_raw$State %in% NORTHEAST, ]  # Northeast, reporting year
 n_raw <- nrow(ne)                                                   # record count before deduplication
-ne <- ne[order(ne$"Total dollars"), ]                              # ascending by total spend
+ne <- ne[order(ne$"Total dollars"), ]                              # order by total dollars
 ne <- ne[!duplicated(ne[, c("Community", "State")], fromLast = TRUE), ]  # keep LAST (largest) per municipality
 cat(sprintf("  %d records -> %d municipalities after deduplication (kept larger of each duplicate pair)\n",
-            n_raw, nrow(ne)))                                       # <-- look: 54 duplicates collapsed
+            n_raw, nrow(ne)))                                       # <-- view 54 duplicates collapsed
 
 
-# STEP 4 -- worked describe(), by hand: all-municipality planting expenditure -
-# The reported statistics are median, IQR, mean and the share of municipalities
-# spending less than a Mini Forest. Positive expenditures only (a zero or NA is
-# "did not report planting spend"). Work the planting column through explicitly.
+# STEP 4 -- all-municipality planting expenditure -
+# Reported statistics are median, IQR, mean and the share of municipalities
+# spending less than a Mini Forest. Positive expenditures only (zero or NA is
+# "did not report planting spend").
 pv <- ne$"Planting Costs"                                           # planting expenditure column
 pv <- pv[!is.na(pv) & pv > 0]                                      # keep reported, positive values only
 row_plant_all <- data.frame(
@@ -78,10 +76,10 @@ row_plant_all <- data.frame(
   pct_below_cheapest_forest = mean(pv < MINI_FOREST_MIN)    * 100, # % below the cheapest Mini Forest
   pct_below_largest_forest  = mean(pv < MINI_FOREST_MAX)    * 100, # % below the most expensive Mini Forest
   stringsAsFactors = FALSE)
-print(row_plant_all)                                               # <-- look: headline planting-affordability row
+print(row_plant_all)                                               # <-- view planting-affordability row
 
 
-# STEP 5 -- the same describe() for all-municipality TOTAL forestry spend -----
+# STEP 5 --  all-municipality TOTAL forestry spend -----
 tv <- ne$"Total dollars"                                           # total forestry expenditure column
 tv <- tv[!is.na(tv) & tv > 0]                                     # reported positive values only
 row_total_all <- data.frame(
@@ -97,17 +95,17 @@ row_total_all <- data.frame(
   pct_below_cheapest_forest = mean(tv < MINI_FOREST_MIN)    * 100,
   pct_below_largest_forest  = mean(tv < MINI_FOREST_MAX)    * 100,
   stringsAsFactors = FALSE)
-print(row_total_all)                                              # <-- look: total-forestry row
+print(row_total_all)                                              # <-- view total-forestry row
 
 
-# STEP 6 -- OPTIONAL restriction to City-or-Suburb municipalities ------------
-# If 03_locale_classification.R has been run, merge its NCES locale codes and
+# STEP 6 -- restrict to City-or-Suburb municipalities ------------
+# If 02_locale_classification.R has been run, merge its NCES locale codes and
 # repeat the two describe() blocks on the urban/suburban subset (locales 11-23).
 # If the file is absent, skip and report only the unrestricted rows above.
 lc_path <- "locale_classification.csv"
 summary_rows <- list(row_plant_all, row_total_all)                # accumulate the summary rows
 
-if (file.exists(lc_path)) {                                        # <-- look: does the locale file exist?
+if (file.exists(lc_path)) {                                        # <-- check does the locale file exist?
   lc <- read.csv(lc_path, colClasses = c(LOCALE = "character"))    # read with LOCALE as text (leading digits matter)
   ne <- merge(ne, lc[, c("Community", "State", "LOCALE")],
               by = c("Community", "State"), all.x = TRUE)          # attach locale code to each municipality
@@ -138,7 +136,7 @@ if (file.exists(lc_path)) {                                        # <-- look: d
     pct_below_largest_forest = mean(tv_u < MINI_FOREST_MAX) * 100,
     stringsAsFactors = FALSE)
 } else {
-  cat("\n  [locale_classification.csv not found - run 03_locale_classification.R\n")
+  cat("\n  [locale_classification.csv not found - run 02_locale_classification.R\n")
   cat("   for the urban/suburban restricted statistics]\n")
 }
 
@@ -163,34 +161,33 @@ for (i in seq_len(nrow(tcusa_summary))) {                          # print each 
 }
 
 
-# STEP 8 -- skew diagnostics: why medians, not means ------------------------
-# Justification for reporting medians throughout. Computed on the all-
-# municipality planting expenditures (positive values), reported in the
+# STEP 8 -- skew diagnostics (why we report medians, not means) ------------------------
+# Computed on the all-municipality planting expenditures (positive values), reported in the
 # Supplement. scipy.stats.skew uses the biased (population) estimator
 # g1 = m3 / m2^(3/2); replicate it exactly with base-R moments.
 v   <- ne$"Planting Costs"; v <- v[!is.na(v) & v > 0]              # planting expenditures, positive only
 top <- max(v)                                                     # the single largest municipality
-v_wo <- v[v < top]                                               # the distribution with that municipality removed
+v_wo <- v[v < top]                                               # distribution with that municipality removed
 m2  <- mean((v - mean(v))^2)                                     # 2nd central moment (population)
 m3  <- mean((v - mean(v))^3)                                     # 3rd central moment (population)
 skewness <- m3 / m2^(3/2)                                        # Fisher-Pearson skewness, matches scipy default
-cat(sprintf("\n  skewness                     %.1f\n", skewness))                         # <-- look: extreme right skew (~23.5)
+cat(sprintf("\n  skewness                     %.1f\n", skewness))                         # <-- extreme right skew (~23.5)
 cat(sprintf("  mean / median                %.1f\n", mean(v) / median(v)))               # mean-to-median ratio
 cat(sprintf("  %% of municipalities < mean   %.0f%%\n", mean(v < mean(v)) * 100))         # share below the mean
 cat(sprintf("  largest municipality share   %.0f%% of regional total\n", top / sum(v) * 100))  # one city's dominance
-cat(sprintf("  removing it moves the mean   %.0f%%\n", (1 - mean(v_wo) / mean(v)) * 100)) # mean is fragile
+cat(sprintf("  removing it moves the mean   %.0f%%\n", (1 - mean(v_wo) / mean(v)) * 100)) # mean is sensitive
 cat(sprintf("  removing it moves the median %.1f%%\n", (1 - median(v_wo) / median(v)) * 100)) # median is robust
 
 
 # STEP 9 -- SENSITIVITY: the alternative deduplication rule ------------------
 # Re-derive the Northeast set keeping the SMALLER "Total dollars" of each
-# duplicate pair, and confirm the planting median barely moves.
+# duplicate pair, and confirm the planting median barely changes
 ne_alt <- tcusa_raw[tcusa_raw$Year == YEAR & tcusa_raw$State %in% NORTHEAST, ]
-ne_alt <- ne_alt[order(ne_alt$"Total dollars"), ]                 # ascending by total spend
+ne_alt <- ne_alt[order(ne_alt$"Total dollars"), ]                 # order by total dollars spent
 ne_alt <- ne_alt[!duplicated(ne_alt[, c("Community", "State")], fromLast = FALSE), ]  # keep FIRST (smallest)
-a <- ne_alt$"Planting Costs"; a <- a[!is.na(a) & a > 0]           # planting spend under the alternative rule
+a <- ne_alt$"Planting Costs"; a <- a[!is.na(a) & a > 0]           # planting dollars under the alternative rule
 cat(sprintf("\n  SENSITIVITY (dedup keep smaller): median $%s (vs $%s under the primary rule)\n",
             format(round(median(a)), big.mark = ","),
-            format(round(tcusa_summary$median[1]), big.mark = ",")))  # <-- look: median stable across the rule
+            format(round(tcusa_summary$median[1]), big.mark = ",")))  # <-- view median
 
 print("Written: output/tcusa_summary.csv")

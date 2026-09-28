@@ -1,4 +1,4 @@
-# 03_locale_classification.R
+# 02_locale_classification.R
 # -----------------------------------------------------------------------------
 # Classifies Tree City USA municipalities as City, Suburb, Town or Rural using
 # the NCES urban-centric locale framework, by point-in-polygon overlay of Census
