@@ -26,10 +26,10 @@ library(patchwork)                                                              
 # STEP 2 - Read the academic paper analysis (108 records, all publication years)
 ################################################################################
 paper_raw <- read_excel("data/Mini_Forest_academic_corpus.xlsx",
-                       sheet = "Paper_analysis", .name_repair = "minimal")       # adjusted workbook - the one figure numbers come from
+                       sheet = "Paper_analysis", .name_repair = "minimal")       # adjusted workbook
 names(paper_raw) <- trimws(names(paper_raw))                                     # a few headers carry trailing spaces ("Peer reviewed? ")
-names(paper_raw)                                                                 # <-- look: confirm the 31 column names below still match the sheet
-nrow(paper_raw)                                                                  # <-- look: 108 data rows
+names(paper_raw)                                                                 # <-- confirm the 31 column names below still match the sheet
+nrow(paper_raw)                                                                  # <-- # data rows
 
 
 ################################################################################
@@ -39,9 +39,9 @@ nrow(paper_raw)                                                                 
 
 papers <- data.frame(
   Authors   = as.character(paper_raw$`Authors`),                                                                   # first author string
-  Year      = as.integer(regmatches(as.character(paper_raw$`Year`), regexpr("[0-9]{4}", as.character(paper_raw$`Year`)))),  # first 4-digit year in the cell
+  Year      = as.integer(regmatches(as.character(paper_raw$`Year`), regexpr("[0-9]{4}", as.character(paper_raw$`Year`)))),  # 4-digit year 
   indexed   = grepl("^yes", tolower(trimws(as.character(paper_raw$`Index`)))),                                     # indexed in Scopus or Web of Science
-  empirical = grepl("^yes", tolower(trimws(as.character(paper_raw$`Empirical data on Mini Forest?`)))),         # reported field-measured data
+  empirical = grepl("^yes", tolower(trimws(as.character(paper_raw$`Empirical data on Mini Forest?`)))),         # reported new empirical data
   peer_rev  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Peer reviewed?`)))),                            # peer reviewed
   comp_tree = grepl("^yes", tolower(trimws(as.character(paper_raw$`Comparison to other types of urban tree planting?`)))),  # compared to another urban tree planting
   rep_mini  = grepl("^yes", tolower(trimws(as.character(paper_raw$`Replicated Mini Forests?`)))),              # >1 replicated Mini Forest
@@ -51,42 +51,42 @@ papers <- data.frame(
   stringsAsFactors = FALSE)
 
 papers <- papers[!is.na(papers$Authors) & papers$Authors != "NA", ]              # drop any blank spacer rows at the bottom of the sheet
-nrow(papers)                                                                     # <-- look: 108 papers carried forward
-range(papers$Year, na.rm = TRUE)                                                 # <-- look: full publication-year span used in the Panel B axis title
-head(papers, 3)                                                                  # <-- look: one row per paper, screening columns now TRUE/FALSE (View(papers) for all 108)
+nrow(papers)                                                                     # <-- # papers for analysis
+range(papers$Year, na.rm = TRUE)                                                 # <-- publication years used in Fig. 1, Panel B axis title
+head(papers, 3)                                                                  # <-- one row per paper, screening columns now TRUE/FALSE
 
 
 ################################################################################
-# STEP 4 - Academic publications per year, 2015-2025 (the Panel A bars)
+# STEP 4 - Academic publications per year, 2015-2025 (Fig.1, Panel A)
 ################################################################################
 
 acad_by_year <- as.data.frame(table(factor(papers$Year, levels = 2015:2025)))    # count papers per year, keeping empty years as 0
 names(acad_by_year) <- c("Year", "n_papers")                                     # rename the table() output columns
 acad_by_year$Year <- as.integer(as.character(acad_by_year$Year))                 # factor level -> integer year for the x axis
-acad_by_year                                                                     # <-- look: 2015=2 ... 2021=9 ... 2025=25
-sum(acad_by_year$n_papers)                                                       # <-- look: 94 papers fall inside the 2015-2025 window
+acad_by_year                                                                     # <-- # papers by year
+sum(acad_by_year$n_papers)                                                       # <-- look: # papers fall between 2015-2025
 
 
 ################################################################################
-# STEP 5 - News articles per year, 2015-2025 (the Panel A lines)
+# STEP 5 - News articles per year, 2015-2025 (Fig. 1, Panel A)
 #          "about"   = classification Miyawaki + Likely_Miyawaki
 #          "passing" = classification Passing_Mention
 ################################################################################
 
 media <- read_excel("data/Mini_Forest_merged_media_corpus.xlsx",
                     sheet = "Merged_corpus")                                     # 5,075 de-replicated MediaCloud + ProQuest records
-media$year <- suppressWarnings(as.integer(media$year))                           # year arrives as text in some rows
-nrow(media)                                                                      # <-- look: 5075 media records before any filtering
+media$year <- suppressWarnings(as.integer(media$year))                           # year as text
+nrow(media)                                                                      # <-- # media records
 
-about_by_year <- as.data.frame(table(factor(media$year[media$classification %in% c("Miyawaki", "Likely_Miyawaki")], levels = 2015:2025)))  # articles ABOUT Mini Forests
+about_by_year <- as.data.frame(table(factor(media$year[media$classification %in% c("Miyawaki", "Likely_Miyawaki")], levels = 2015:2025)))  # articles about Mini Forests
 names(about_by_year) <- c("Year", "n_about")                                     # rename the table() output columns
-about_by_year$Year <- as.integer(as.character(about_by_year$Year))               # factor level -> integer year
-sum(about_by_year$n_about)                                                       # <-- look: 1,160 articles about Mini Forests
+about_by_year$Year <- as.integer(as.character(about_by_year$Year))               # factor level -> year
+sum(about_by_year$n_about)                                                       # <-- # articles about Mini Forests
 
-passing_by_year <- as.data.frame(table(factor(media$year[media$classification == "Passing_Mention"], levels = 2015:2025)))                 # articles with a PASSING mention
+passing_by_year <- as.data.frame(table(factor(media$year[media$classification == "Passing_Mention"], levels = 2015:2025)))                 # articles with a passing mention
 names(passing_by_year) <- c("Year", "n_passing")                                 # rename the table() output columns
 passing_by_year$Year <- as.integer(as.character(passing_by_year$Year))           # factor level -> integer year
-sum(passing_by_year$n_passing)                                                   # <-- look: 2,575 passing-mention articles
+sum(passing_by_year$n_passing)                                                   # <-- # passing-mention articles
 
 
 ################################################################################
@@ -94,7 +94,7 @@ sum(passing_by_year$n_passing)                                                  
 ################################################################################
 
 panelA_bars <- acad_by_year                                                      # bars: one row per year, n_papers
-panelA_bars                                                                      # <-- look: the numbers printed above each bar
+panelA_bars                                                                      # <-- numbers printed above each bar
 
 panelA_lines <- rbind(
   data.frame(Year = about_by_year$Year,   n = about_by_year$n_about,     series = "News articles - about Mini Forests"),          # green line
@@ -102,14 +102,14 @@ panelA_lines <- rbind(
 panelA_lines$series <- factor(panelA_lines$series,
   levels = c("News articles - passing mention of Mini Forests",                  # amber listed first so it sits on top of the legend stack
              "News articles - about Mini Forests"))                              # green listed second, matching the example figure
-panelA_lines                                                                     # <-- look: 22 rows = 11 years x 2 series
+panelA_lines                                                                     # <-- X rows =  years x series
 
 y_top_A <- max(panelA_lines$n) * 1.12                                            # headroom above the tallest (2021 passing-mention) point
 
 
 ################################################################################
 # STEP 7 - PANEL A: bars = academic publications, lines = news articles
-#          Times New Roman, enlarged text, legend stacked ABOVE the panel.
+#          Times New Roman, enlarged text, legend stacked above panel.
 ################################################################################
 
 panelA <- ggplot() +
@@ -119,7 +119,7 @@ panelA <- ggplot() +
             vjust = 0, size = 4.6, family = "Times", colour = "#37474F") +       # print the paper count above each bar
   geom_line(data = panelA_lines, aes(Year, n, colour = series), linewidth = 1.0) +   # the two media trend lines
   geom_point(data = panelA_lines, aes(Year, n, colour = series, shape = series),
-             size = 3.0, stroke = 0.8, fill = "white") +                         # open squares (passing) / open circles (about)
+             size = 3.0, stroke = 0.8, fill = "white") +                         # open squares (passing), open circles (about)
   scale_fill_manual(NULL, values = c("Academic publications" = "#37474F")) +     # charcoal; label kept short, n reported in the figure legend
   scale_colour_manual(NULL, values = c("News articles - passing mention of Mini Forests" = "#E59500",   # amber
                                        "News articles - about Mini Forests"              = "#2E7D32")) + # green
@@ -129,7 +129,7 @@ panelA <- ggplot() +
   scale_y_continuous(limits = c(0, y_top_A), breaks = seq(0, 600, 200), expand = expansion(mult = c(0, 0))) +  # 0/200/400/600 as in the example
   guides(fill   = guide_legend(order = 1, direction = "vertical"),                # bars key first...
          colour = guide_legend(order = 2, direction = "vertical"),                # ...then the two media lines, one per row
-         shape  = guide_legend(order = 2, direction = "vertical")) +              # shape merges into the colour key
+         shape  = guide_legend(order = 2, direction = "vertical")) +              # shape merges into the color key
   labs(x = NULL, y = "Number of articles per year", title = "(A)") +             # panel letter only - all wording lives in the figure legend
   theme_classic(base_size = 16, base_family = "Times") +                         # Times New Roman, enlarged base text
   theme(plot.title = element_text(size = 20, hjust = 0, margin = margin(b = 2)), # "(A)" sits at the far left, above the legend
@@ -146,11 +146,11 @@ panelA <- ggplot() +
         legend.key.height = unit(16, "pt"),                                      # row height for the stacked keys
         panel.grid.major.y = element_line(colour = "grey85", linewidth = 0.3))   # faint horizontal guides
 
-print(panelA)                                                                    # <-- look: legend above, Times text, bars labelled 2..25
+print(panelA)                                                                    # <-- plot
 
 
 ################################################################################
-# STEP 8 - PANEL B tiers: nested evidence funnel (all publication years)
+# STEP 8 - PANEL B: nested evidence panel (all publication years)
 #          Each tier is a strict subset of the tier above it.
 ################################################################################
 
@@ -158,7 +158,7 @@ tier1 <- papers                                                                 
 tier2 <- tier1[tier1$peer_rev, ]                                                                         # ...peer reviewed
 tier3 <- tier2[tier2$empirical, ]                                                                        # ...with empirical data on Mini Forests
 tier4 <- tier3[tier3$comp_tree, ]                                                                        # ...compared to other urban tree plantings
-tier5 <- tier4[tier4$rep_mini & tier4$rep_comp, ]                                                        # ...with replicated Mini Forest AND comparison plots
+tier5 <- tier4[tier4$rep_mini & tier4$rep_comp, ]                                                        # ...with replicated Mini Forest and comparison plots
 tier6 <- tier5[tier5$stat_tree | tier5$stat_gree, ]                                                      # ...that statistically tested the superiority claim
 
 funnel <- data.frame(
@@ -169,7 +169,7 @@ funnel <- data.frame(
             "...with replicated Mini Forest & comparison plots",                                         # tier 5
             "...that statistically tested the superiority claim"),                                       # tier 6
   n = c(nrow(tier1), nrow(tier2), nrow(tier3), nrow(tier4), nrow(tier5), nrow(tier6)),                   # papers surviving each filter
-  n_indexed = c(NA, sum(tier2$indexed), sum(tier3$indexed), sum(tier4$indexed), sum(tier5$indexed), sum(tier6$indexed)),  # Scopus/WoS share; NA = tier 1 is not split
+  n_indexed = c(NA, sum(tier2$indexed), sum(tier3$indexed), sum(tier4$indexed), sum(tier5$indexed), sum(tier6$indexed)),  # Scopus/WoS
   stringsAsFactors = FALSE)
 
 funnel$n_notindexed <- funnel$n - funnel$n_indexed                                                       # the light-blue remainder of each bar
@@ -178,13 +178,13 @@ funnel$pct <- funnel$n / funnel$n[1] * 100                                      
 n_all <- funnel$n[1]                                                                                     # total papers identified; used to place the Panel B labels
 funnel$right_lab <- c(sprintf("n = %d", funnel$n[1]),                                                    # tier 1 label carries no percent
                       sprintf("n = %d (%.0f%%)", funnel$n[-1], funnel$pct[-1]))                          # tiers 2-6 carry n and percent
-funnel[, c("label", "n", "n_indexed", "n_notindexed")]                                                   # <-- look: 108, 67, 32, 9, 1, 0
+funnel[, c("label", "n", "n_indexed", "n_notindexed")]                                                   # numbers
 
 
 ################################################################################
-# STEP 9 - PANEL B bar segments, written out one tier at a time
+# STEP 9 - PANEL B bars
 #          Tier 1 = single grey bar. Tiers 2-5 = dark (indexed) + light (not indexed).
-#          Tier 6 is n = 0, so it gets no rectangle - only its right-hand label.
+#          Tier 6 is n = 0
 ################################################################################
 
 funnel_seg <- rbind(
@@ -199,16 +199,16 @@ funnel_seg <- rbind(
   data.frame(yp = 1, xmin = funnel$n_indexed[5], xmax = funnel$n[5],        fill = "Not indexed"))                  # tier 5 not indexed
 funnel_seg <- funnel_seg[funnel_seg$xmax > funnel_seg$xmin, ]                                            # drop any zero-width segment
 funnel_seg$fill <- factor(funnel_seg$fill, levels = c("All papers identified", "Indexed in Scopus / WoS", "Not indexed"))  # legend order
-funnel_seg                                                                                                # <-- look: 8 rectangles after the zero-width drop
+funnel_seg                                                                                                # <-- # rectangles after the zero-width drop
 
 
 ################################################################################
-# STEP 10 - PANEL B: horizontal nested funnel, Times New Roman, enlarged text
+# STEP 10 - PANEL B: plot
 ################################################################################
 
 panelB <- ggplot() +
   geom_rect(data = funnel_seg, aes(xmin = xmin, xmax = xmax, ymin = yp - 0.32, ymax = yp + 0.32, fill = fill),
-            colour = "white", linewidth = 0.4) +                                 # the stacked tier bars
+            colour = "white", linewidth = 0.4) +                                 #  stacked tier bars
   geom_text(data = funnel, aes(x = pmax(n, 0.5) + n_all * 0.02, y = yp, label = right_lab),
             hjust = 0, size = 5.0, family = "Times", colour = "black") +         # n (and %) to the right of each bar
   geom_text(data = funnel, aes(x = -n_all * 0.02, y = yp, label = label),
@@ -217,7 +217,7 @@ panelB <- ggplot() +
                                      "Indexed in Scopus / WoS"  = "#1F4E79",     # deep blue
                                      "Not indexed"              = "#A9CCE3"),    # light blue
                     breaks = c("Indexed in Scopus / WoS", "Not indexed")) +      # legend shows only the indexing split
-  scale_x_continuous(breaks = seq(0, 100, 20)) +                                 # 0,20,...,100 papers
+  scale_x_continuous(breaks = seq(0, 100, 20)) +                                 # # papers
   scale_y_continuous(expand = c(0, 0)) +                                         # no padding above/below the bar block
   coord_cartesian(xlim = c(-n_all * 0.85, n_all * 1.05),             # negative x space holds the left-hand tier labels
                   ylim = c(-0.7, 5.7), clip = "off") +                           # clip = "off" lets the n labels overflow the panel
@@ -235,7 +235,7 @@ panelB <- ggplot() +
         legend.title = element_text(size = 14), legend.text = element_text(size = 13),  # enlarged but subordinate to the panel text
         plot.margin = margin(t = 5, r = 60, b = 5, l = 5))                       # right margin holds the overflowing n labels
 
-print(panelB)                                                                    # <-- look: six tiers, labels legible, nothing clipped
+print(panelB)                                                                    # <-- plot
 
 
 ################################################################################
