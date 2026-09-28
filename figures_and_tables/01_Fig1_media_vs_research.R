@@ -3,7 +3,7 @@
 #
 # FIGURE 1 - Media attention vs. academic research on Mini Forests
 #   Panel A - news articles per year (lines) vs. academic publications (bars), 2015-2025
-#   Panel B - nested evidence funnel across all Mini Forest papers identified
+#   Panel B - nested evidence across all Mini Forest papers identified
 #
 # Data in:
 #   papers - Mini_Forest_academic_corpus.xlsx, sheet "Paper_analysis"
@@ -13,25 +13,18 @@
 #   Figure1_mini_forest_media_vs_research_2015-2025.{pdf,png,svg}
 #
 # Style: Times New Roman throughout, enlarged text, Panel A legend ABOVE the panel.
-# Run one STEP at a time and look at the objects flagged with "# <-- look:".
-################################################################################
-
-
 ################################################################################
 # STEP 1 - Packages
 ################################################################################
-
-library(readxl)                                                                  # read the two .xlsx workbooks
-library(ggplot2)                                                                 # all plotting
-library(patchwork)                                                               # stack Panel A over Panel B
-library(svglite)                                                                 # .svg export with live text
-library(ragg)                                                                    # .png export with system fonts (Times New Roman)
+#Read in required libraries
+library(readxl)                                                                  # to read the two .xlsx workbooks
+library(ggplot2)                                                                 # for all plotting
+library(patchwork)                                                               # to stack Panel A over Panel B
 
 
 ################################################################################
-# STEP 2 - Read the ADJUSTED paper analysis (108 records, all publication years)
+# STEP 2 - Read the academic paper analysis (108 records, all publication years)
 ################################################################################
-
 paper_raw <- read_excel("data/Mini_Forest_academic_corpus.xlsx",
                        sheet = "Paper_analysis", .name_repair = "minimal")       # adjusted workbook - the one figure numbers come from
 names(paper_raw) <- trimws(names(paper_raw))                                     # a few headers carry trailing spaces ("Peer reviewed? ")
