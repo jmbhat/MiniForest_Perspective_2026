@@ -1,8 +1,8 @@
 # 01_cost_summary.R
 # -----------------------------------------------------------------------------
-# Summarises capital costs of Mini Forests, individual tree plantings and
-# turfgrass establishment in Northeast U.S. municipalities, and computes the
-# within-municipality matched comparisons reported in the main text (Table 1).
+# Summarizes capital costs of Mini Forests, individual tree plantings and
+# turfgrass establishment in Northeast U.S. municipalities and computes the
+# within-municipality  comparisons reported in the main text (Table 1).
 #
 # Input : planting_costs.csv
 # Output: output/table1_summary.csv
@@ -13,10 +13,9 @@
 #                       1 ha   = 10,000 m^2
 # Statistical convention  Medians and full ranges throughout. Distributions are
 #                       strongly right-skewed and samples are small, so all
-#                       values appear in Table 1 and no inferential statistics
+#                       values appear in Table 1 and no statistics
 #                       are computed (municipalities were not randomly sampled).
 #
-# Run each STEP one at a time and inspect the named object it leaves behind.
 # =============================================================================
 
 
@@ -25,14 +24,14 @@ SQFT_TO_M2 <- 0.09290304                                              # exact in
 M2_PER_HA  <- 10000                                                  # m^2 per hectare
 
 costs <- read.csv("data/planting_costs.csv",
-                   stringsAsFactors = FALSE)                          # one row per planting, per-row source column
-head(costs)                                                           # <-- look: 15 rows, 14 columns, types sane?
+                   stringsAsFactors = FALSE)                          # one row per planting
+head(costs)                                                           # <-- look: 15 rows, 14 columns
 
 
 # STEP 2 -- derive the per-area and per-tree cost metrics --------------------
-costs$area_m2     <- costs$area_sqft * SQFT_TO_M2                     # footprint in m^2 (NA for the arealess street trees)
+costs$area_m2     <- costs$area_sqft * SQFT_TO_M2                     # footprint in m^2 (NA for the street trees)
 costs$usd_per_m2  <- costs$capital_cost_usd / costs$area_m2           # capital cost per m^2 of footprint
-costs$usd_per_ha  <- costs$usd_per_m2 * M2_PER_HA                     # same, extrapolated to a hectare (for intl comparison only)
+costs$usd_per_ha  <- costs$usd_per_m2 * M2_PER_HA                     # same, extrapolated to a hectare
 costs$usd_per_tree <- costs$capital_cost_usd / costs$trees            # capital cost per tree planted
 costs$trees_per_m2 <- costs$trees / costs$area_m2                     # planting density
 View(costs)                                                          # <-- look: metrics populated only where area/trees exist
@@ -46,8 +45,8 @@ c(mini_forest = nrow(mf), individual_tree = nrow(it), turfgrass = nrow(tg))  # <
 
 
 # STEP 4 -- Table 1 summary, Mini Forests -----------------------------------
-# Median and full range for every reported metric. Written out explicitly so
-# each number in Table 1 can be read straight off the block.
+# Median and full range for every reported metric.
+
 mf_row <- data.frame(
   planting_type          = "mini_forest",
   n                      = nrow(mf),
@@ -77,9 +76,6 @@ print(mf_row)                                                        # <-- look:
 
 
 # STEP 5 -- Table 1 summary, individual trees -------------------------------
-# Individual trees have no areal footprint, so area/per-area/density metrics are
-# undefined and left as NA; plant_purchase_usd is reported where municipalities
-# broke it out.
 it_row <- data.frame(
   planting_type          = "individual_tree",
   n                      = nrow(it),
@@ -124,8 +120,6 @@ print(tg_row)                                                       # <-- look: 
 
 
 # STEP 7 -- assemble and write Table 1 --------------------------------------
-# merge (not rbind) because the three rows carry different metric columns; the
-# absent ones fill with NA, matching the Python summary layout.
 table1_summary <- merge(merge(mf_row, it_row, all = TRUE), tg_row, all = TRUE)  # union of columns, 3 rows
 table1_summary <- table1_summary[match(c("mini_forest", "individual_tree", "turfgrass"),
                                        table1_summary$planting_type), ]  # restore the reported row order
@@ -136,8 +130,6 @@ write.csv(table1_summary,
 
 
 # STEP 8 -- print the Mini Forest detail block ------------------------------
-print("======================================================================")
-print("MINI FORESTS")
 mf_detail <- mf[, c("municipality", "site", "capital_cost_usd", "area_m2",
                     "usd_per_m2", "usd_per_ha", "trees", "trees_per_m2",
                     "usd_per_tree")]                                 # the per-site rows behind the summary
@@ -154,8 +146,6 @@ cat(sprintf("  median USD/tree $%s   range $%s-%s\n",
 
 
 # STEP 9 -- print the individual tree detail block --------------------------
-print("======================================================================")
-print("INDIVIDUAL TREES")
 print(it[, c("municipality", "site", "capital_cost_usd", "plant_purchase_usd")],
       row.names = FALSE)                                            # <-- look: six per-tree costs
 cat(sprintf("  median capital $%s   range $%s-%s\n",
@@ -165,11 +155,8 @@ cat(sprintf("  median plant purchase $%s   range $%s-%s   (n=%d of %d)\n",
             round(median(pp)), round(min(pp)), round(max(pp)), length(pp), nrow(it)))
 
 
-# STEP 10 -- worked single matched comparison (Brookline), done by hand ------
-# The matched comparison is a within-municipality contrast: a Mini Forest's cost
-# per tree against that same city's street/park tree cost. Cross-municipality
-# ratios confound planting method with procurement model, so only municipalities
-# reporting BOTH types are compared. Work Brookline through explicitly first.
+# STEP 10 -- single  comparison (Brookline) ------
+# a Mini Forest's cost per tree vs. street/park tree cost
 bk_forest_cost <- mf[mf$municipality == "Brookline", "capital_cost_usd"]     # Ridley School project total
 bk_forest_per_tree <- mf[mf$municipality == "Brookline", "usd_per_tree"]     # its per-tree cost
 bk_street_tree <- median(it[it$municipality == "Brookline", "capital_cost_usd"])  # Brookline street tree cost
@@ -180,14 +167,11 @@ c(forest_capital = bk_forest_cost,
   forest_equiv_n_street_trees = bk_forest_cost / bk_street_tree)             # how many street trees the forest budget buys
 
 
-# STEP 11 -- the matched comparison for every municipality with both types ---
-# Only Brookline, Worcester and Providence reported both. Providence has two
-# Mini Forest sites, each compared to the single Providence street-tree median.
-# One minimal, heavily commented loop that mirrors STEP 10 exactly.
+# STEP 11 -- the matched comparison for every municipality with both types (Brookline, Worcester and Providence) ---
 both_muni <- sort(intersect(mf$municipality, it$municipality))       # municipalities reporting both types
 both_muni                                                           # <-- look: Brookline, Providence, Worcester
 
-matched_list <- lapply(both_muni, function(m) {                      # one iteration = one municipality (mirrors STEP 10)
+matched_list <- lapply(both_muni, function(m) {                      # function to make comparisons for all three municipalities (mirrors STEP 10)
   tree_cost <- median(it[it$municipality == m, "capital_cost_usd"])  # that city's street/park tree cost (median if several)
   forests   <- mf[mf$municipality == m, ]                            # every Mini Forest site in that city
   data.frame(
@@ -205,50 +189,41 @@ View(matched_comparisons)                                           # <-- look: 
 write.csv(matched_comparisons,
           "matched_comparisons.csv",
           row.names = FALSE)
-print("======================================================================")
-print("MATCHED WITHIN-MUNICIPALITY COMPARISONS")
+
 print(cbind(matched_comparisons[, 1:2], round(matched_comparisons[, -(1:2)], 2)), row.names = FALSE)
 
 
 # STEP 12 -- turfgrass comparison, Brookline only ----------------------------
-# Brookline is the only municipality reporting all three planting types, so the
-# Mini-Forest-vs-turfgrass per-m^2 contrast is available there alone.
 tg_per_m2 <- tg$usd_per_m2[1]                                        # Larz Anderson Park turfgrass, $/m^2
 bk_mf_per_m2 <- mf[mf$municipality == "Brookline", "usd_per_m2"]     # Brookline Mini Forest, $/m^2
 cat(sprintf("\nBrookline Mini Forest $%.2f/m2 vs turfgrass $%.2f/m2  ->  %.0fx\n",
             bk_mf_per_m2, tg_per_m2, bk_mf_per_m2 / tg_per_m2))      # <-- look: fold difference
-cat("  NOTE: accounting scope differs between these two figures; the Mini Forest\n")
-cat("  includes site preparation but not installation labour, the turfgrass the reverse.\n")
 
 
 # STEP 13 -- street frontage equivalents -------------------------------------
 # What length of street frontage would the same money plant, at each city's
-# stated on-centre tree spacing? Frontage = n_trees * spacing. Continuous
-# plantable frontage is assumed, so these are UPPER bounds (driveways, hydrants,
-# vaults and transit stops all interrupt real street runs).
-# Worked example, Brookline: $7,100 forest / $620 street tree = n trees @ 25 ft.
-bk_n <- 7100 / 620                                                  # street trees the Brookline forest budget buys
-bk_frontage_ft <- bk_n * 25                                         # frontage at 25 ft on-centre
-bk_frontage_m  <- bk_frontage_ft * 0.3048                           # feet -> metres
+# stated street tree spacing? Frontage = n_trees * spacing. Continuous
+# plantable frontage is assumed, so these are UPPER bounds
+# Example: Brookline: $7,100 forest / $620 street tree = n trees @ 25 ft.
+bk_n <- 7100 / 620                                                  # number of street trees the Brookline forest budget buys
+bk_frontage_ft <- bk_n * 25                                         # frontage at 25 ft distances between trees
+bk_frontage_m  <- bk_frontage_ft * 0.3048                           # feet -> meters
 c(n_trees = bk_n, frontage_ft = bk_frontage_ft,
   frontage_m = bk_frontage_m, both_sides_m = bk_frontage_m / 2)     # <-- look: Brookline frontage equivalent
 
-# The same computation for the three specification rows (Brookline + two
-# Worcester spacings). Explicit, one row per spec.
+# The same computation for Brookline + two Worcester spacings
 frontage_specs <- data.frame(
   city    = c("Brookline", "Worcester", "Worcester"),
   cost    = c(7100, 466000, 466000),                               # forest capital cost
-  tree    = c(620, 491, 491),                                      # that city's per-street-tree cost
-  spacing = c(25, 30, 25),                                         # on-centre spacing, ft
+  tree    = c(620, 491, 491),                                      # city's per-street-tree cost
+  spacing = c(25, 30, 25),                                         # tree spacing, ft
   source  = c("Zoning By-law Art. V 5.06.4.j (Emerald Island Special District)",
               "Streetscape Policy 2012, typical spacing",
               "Streetscape Policy 2012, stated minimum"),
   stringsAsFactors = FALSE)
-frontage_specs$n_trees      <- frontage_specs$cost / frontage_specs$tree           # trees the budget buys
-frontage_specs$frontage_m   <- frontage_specs$n_trees * frontage_specs$spacing * 0.3048  # frontage in metres
+frontage_specs$n_trees      <- frontage_specs$cost / frontage_specs$tree           # street trees the budget buys
+frontage_specs$frontage_m   <- frontage_specs$n_trees * frontage_specs$spacing * 0.3048  # frontage in m
 frontage_specs$both_sides_m <- frontage_specs$frontage_m / 2                       # street length if planted both sides
-print("======================================================================")
-print("STREET FRONTAGE EQUIVALENTS")
 View(frontage_specs)                                                # <-- look: frontage upper bounds per spec
 
 print("Written: output/table1_summary.csv")
