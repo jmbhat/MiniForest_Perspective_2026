@@ -1,35 +1,21 @@
 # Cost analysis of Mini Forests, individual tree plantings and turfgrass in Northeast U.S. municipalities
 
-Analysis code supporting [manuscript citation].
-
-This repository reproduces the municipal cost comparison in Table 1 and the
-urban forestry expenditure analysis reported in the main text and Supplementary
-Methods.
+Analysis code supporting the Perspective (Bhatnagar, Hutyra, Raeber, Winbourne, Templer). This repository reproduces the municipal cost comparisons in Table 1 and the expenditure analysis reported in the main text and Supplementary Methods.
 
 ## Contents
 
 ```
 data/
-  planting_costs.csv            municipal cost data, one row per planting, with per-row source
+  planting_costs.csv            municipal cost data, one row per planting, plus source
   TCUSA_Data2016_2025.xlsx      NOT INCLUDED - see Data sources below
   EDGE_LOCALE25_US.*            NOT INCLUDED - see Data sources below
   tiger/tl_2025_{ss}_{cousub,place}.*   NOT INCLUDED - see Data sources below
 R/
   01_cost_summary.R            Table 1 statistics; within-municipality matched comparisons
-  03_tcusa_expenditure.R       municipal expenditure distributions and affordability shares
   02_locale_classification.R   NCES City/Suburb/Town/Rural classification
-                         written by the scripts
+  03_tcusa_expenditure.R       municipal expenditure distributions and affordability calculations
+
 ```
-
-Run in order. `02` uses the output of `03` if present, and reports unrestricted
-statistics only if it is absent.
-
-```bash
-Rscript R/01_cost_summary.R
-Rscript R/02_locale_classification.R
-Rscript R/03_tcusa_expenditure.R
-```
-
 Requires the R packages `sf` (for the point-in-polygon overlay in `03`) and `readxl`.
 
 ## Data sources
@@ -45,7 +31,7 @@ The remaining inputs are public but too large to redistribute here.
 
 | File | Source |
 |---|---|
-| `TCUSA_Data2016_2025.xlsx` | Arbor Day Foundation, Tree City USA programme data |
+| `TCUSA_Data2016_2025.xlsx` | Arbor Day Foundation, Tree City USA program data |
 | `EDGE_LOCALE25_US.*` | NCES, https://nces.ed.gov/programs/edge/Geographic/LocaleBoundaries |
 | `tl_2025_{ss}_cousub.zip`, `tl_2025_{ss}_place.zip` | Census TIGER/Line 2025, https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html |
 
