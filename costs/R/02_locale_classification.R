@@ -4,23 +4,21 @@
 # the NCES urban-centric locale framework, by point-in-polygon overlay of Census
 # municipal interior points against the NCES locale boundary file.
 #
-# Inputs (all public; NONE included in the repo -- see README for sources)
+# Inputs:
 #   EDGE_LOCALE25_US.shp             NCES locale boundaries (+ .dbf .shx .prj)
 #   tiger/tl_2025_{ss}_cousub.shp    Census county subdivisions   (9 NE states)
 #   tiger/tl_2025_{ss}_place.shp     Census incorporated places   (9 NE states)
 #   TCUSA_Data2016_2025.xlsx         Arbor Day Foundation
-# Output
+# Output:
 #   output/locale_classification.csv
 #   console summary
 #
-# Why NCES rather than the Census urban-rural split: the Census split is binary
-# (suburban territory is simply "urban", with no suburb category). NCES is built
-# on the same Census urbanized areas but separates principal cities (11-13) from
-# surrounding urbanized territory (21-23), permitting a City-or-Suburb subset.
+# The U.S Census split is binary (suburban territory is simply "urban", with no suburb category). 
+# NCES separates principal cities (11-13) from surrounding urbanized territory (21-23), 
+# allowing City and Suburb subsets.
 #
-# Requires the 'sf' and 'readxl' packages. Run each STEP one at a time.
 # =============================================================================
-
+#Load required packages.
 library(sf)                                                        # spatial read + point-in-polygon join
 library(readxl)                                                    # read the Arbor Day .xlsx
 
@@ -39,47 +37,43 @@ LOCALE_LABEL <- c("11" = "City, Large", "12" = "City, Midsize", "13" = "City, Sm
                   "31" = "Town, Fringe", "32" = "Town, Distant", "33" = "Town, Remote",
                   "41" = "Rural, Fringe", "42" = "Rural, Distant", "43" = "Rural, Remote")
 URBAN_SUBURBAN <- c("11", "12", "13", "21", "22", "23")            # NCES City (11-13) or Suburb (21-23)
-CDP_LSAD    <- "57"                                                # census designated place: not a governing entity
-LEGAL_SUFFIX <- "\\s+(borough|boro|township|twp|village|town|city)$"  # trailing legal suffix to strip when matching
-TIGER_DIR <- "data/tiger"
+CDP_LSAD    <- "57"                                                # census designated place
+LEGAL_SUFFIX <- "\\s+(borough|boro|township|twp|village|town|city)$"  # trailing legal suffix to cut when matching
+TIGER_DIR <- "data/TIGER_Line_Shapefiles"
 LOCALE_SHP <- "data/EDGE_LOCALE25_US.shp"
 
 
 # STEP 2 -- read the NCES locale boundary layer ------------------------------
 locale <- st_read(LOCALE_SHP, quiet = TRUE)                        # locale polygons, one LOCALE code each
-cat(sprintf("  NCES locale polygons: %s (CRS: %s)\n",
-            format(nrow(locale), big.mark = ","), st_crs(locale)$input))  # <-- look: layer read, CRS known
 
 
-# STEP 3 -- worked single shapefile: one state's county subdivisions ---------
-# The reference layer is one row per Census geography carrying its interior
-# point. County subdivisions are the municipal unit in the six New England
+# STEP 3 -- Classify one state's county subdivisions ---------
+# One row per Census geography based on its interior point. 
+# County subdivisions are the municipal unit in the six New England
 # states (and townships in NY/NJ/PA); incorporated places cover cities,
-# boroughs and villages. Work ONE file through by hand before looping.
+# boroughs and villages.
 g1 <- st_read(file.path(TIGER_DIR, "tl_2025_25_cousub.shp"), quiet = TRUE)  # Massachusetts county subdivisions
 g1 <- g1[g1$ALAND > 0, ]                                          # drop water-only records
 example_cousub <- data.frame(
   State = STATE_FIPS[substr(g1$STATEFP, 1, 2)],                   # FIPS -> state name
-  NAME  = g1$NAME,                                                # bare municipality name
+  NAME  = g1$NAME,                                                # municipality name
   NAMELSAD = g1$NAMELSAD,                                         # name with legal/statistical suffix
   kind  = "cousub",                                              # geography kind
   is_cdp = FALSE,                                               # cousubs are never CDPs
   lat = as.numeric(g1$INTPTLAT),                                # interior point latitude  (+dd.dddd)
   lon = as.numeric(g1$INTPTLON),                                # interior point longitude (-dd.dddd)
   stringsAsFactors = FALSE)
-head(example_cousub)                                             # <-- look: one file parsed into the reference shape
+head(example_cousub)                                             # <-- look ad data frame header
 
 
-# STEP 4 -- read all 18 shapefiles into one reference frame ------------------
-# One minimal loop that mirrors STEP 3 exactly, over the 9 states x 2 geography
-# kinds (cousub + place). This is genuine iteration over files, so it is the
-# single loop the analysis needs; everything downstream is vectorised.
+# STEP 4 -- read all 18 shapefiles into one data frame ------------------
+# Classify locales over 9 states x 2 geography kinds (cousub + place). 
 fips  <- names(STATE_FIPS)                                        # the 9 Northeast state FIPS codes
 specs <- rbind(data.frame(ss = fips, kind = "cousub", stringsAsFactors = FALSE),
                data.frame(ss = fips, kind = "place",  stringsAsFactors = FALSE))  # 18 (state, kind) jobs
 
-ref_parts <- vector("list", nrow(specs))                         # one list slot per shapefile
-for (i in seq_len(nrow(specs))) {                                # i-th shapefile (mirrors STEP 3)
+ref_parts <- vector("list", nrow(specs))                         # one list per shapefile
+for (i in seq_len(nrow(specs))) {                                # shapefile
   fp <- file.path(TIGER_DIR, sprintf("tl_2025_%s_%s.shp", specs$ss[i], specs$kind[i]))
   g  <- st_read(fp, quiet = TRUE)                                # read this state+kind layer
   g  <- g[g$ALAND > 0, ]                                        # drop water-only records
@@ -93,17 +87,16 @@ for (i in seq_len(nrow(specs))) {                                # i-th shapefil
     lon    = as.numeric(g$INTPTLON),
     stringsAsFactors = FALSE)
 }
-ref <- do.call(rbind, ref_parts)                                # stack all 18 layers into one reference frame
+ref <- do.call(rbind, ref_parts)                                # combine all 18 layers into one data frame
 cat(sprintf("  reference geographies: %s (cousub %s, place %s)\n",
             format(nrow(ref), big.mark = ","),
             format(sum(ref$kind == "cousub"), big.mark = ","),
-            format(sum(ref$kind == "place"), big.mark = ",")))   # <-- look: total reference geographies
+            format(sum(ref$kind == "place"), big.mark = ",")))   # <-- look at total reference geographies
 
 
-# STEP 5 -- normalise names into a match key (vectorised, no loop) -----------
-# Lower-case, unify punctuation, expand common directional/abbreviation
-# prefixes, then strip any trailing legal suffix. Applied to the whole NAME
-# column at once with vectorised gsub -- this is the Python normalise()/basename().
+# STEP 5 -- normalize names -----------
+# Lower-case, standardize punctuation, expand common directional/abbreviation
+# prefixes, then remove legal suffixes. 
 key <- tolower(trimws(ref$NAME))                                 # lower-case, trim
 key <- gsub("[-.]", " ", key)                                   # hyphens and dots -> spaces
 key <- gsub("['`]", "", key)                                    # drop apostrophes/backticks
@@ -116,10 +109,9 @@ ref$key <- key                                                 # attach the key 
 head(ref[, c("State", "NAME", "key", "kind", "is_cdp")])       # <-- look: names reduced to bare match keys
 
 
-# STEP 6 -- point-in-polygon: assign each geography its NCES locale ----------
-# Build interior points in the locale layer's CRS (mirrors the Python, which
-# assigns the locale CRS directly to the lon/lat points), then keep the locale
-# polygon each point falls within.
+# STEP 6 -- assign each geography its NCES locale ----------
+# Build interior points in the locale layer's CRS, then keep the locale
+# polygon each point falls in.
 pts <- st_as_sf(ref, coords = c("lon", "lat"), crs = st_crs(locale))  # interior points as sf, locale CRS
 joined <- st_join(pts, locale["LOCALE"], join = st_within)            # locale code of the containing polygon
 joined <- st_drop_geometry(joined)                                   # back to a plain data frame
@@ -127,49 +119,47 @@ joined <- joined[!duplicated(joined[, c("State", "key", "kind", "NAMELSAD")]), ]
 ref <- joined[!is.na(joined$LOCALE), c("State", "key", "NAME", "NAMELSAD", "kind", "is_cdp", "LOCALE")]
 n_missing <- sum(is.na(joined$LOCALE))                              # points outside every locale polygon
 if (n_missing) cat(sprintf("  %d interior points fell outside all locale polygons; dropped\n", n_missing))
-cat(sprintf("  geographies with a locale: %s\n", format(nrow(ref), big.mark = ",")))  # <-- look: reference ready
+cat(sprintf("  geographies with a locale: %s\n", format(nrow(ref), big.mark = ",")))  # <-- number of geographies to use
 
 
-# STEP 7 -- read Tree City USA, filter to the Northeast reporting year -------
+# STEP 7 -- read Tree City USA, subset to the Northeast reporting year -------
 df <- as.data.frame(read_excel(
   "data/TCUSA_Data2016_2025.xlsx",
   sheet = "Tree City USA 2016-2025"))
-df$"Total dollars" <- suppressWarnings(as.numeric(df$"Total dollars"))       # coerce for the dedup sort
+df$"Total dollars" <- suppressWarnings(as.numeric(df$"Total dollars"))       # force warning suppression
 ne <- df[df$Year == 2025 & df$State %in% STATE_FIPS, ]                       # Northeast, reporting year
-ne <- ne[order(ne$"Total dollars"), ]                                       # ascending by total spend
+ne <- ne[order(ne$"Total dollars"), ]                                       # order by total dollars
 ne <- ne[!duplicated(ne[, c("Community", "State")], fromLast = TRUE), ]      # keep the larger of each duplicate pair
 
-# Normalise the TCUSA community names with the SAME vectorised rules as STEP 5.
+# Normalize the TCUSA community names with the SAME rules as STEP 5.
 k <- tolower(trimws(ne$Community)); k <- gsub("[-.]", " ", k); k <- gsub("['`]", "", k)
 k <- gsub("^w\\s+", "west ", k); k <- gsub("^e\\s+", "east ", k)
 k <- gsub("^n\\s+", "north ", k); k <- gsub("^s\\s+", "south ", k)
 k <- gsub("^st\\s+", "saint ", k); k <- gsub("^mt\\s+", "mount ", k)
 k <- gsub("\\s+", " ", k); ne$key <- trimws(gsub(LEGAL_SUFFIX, "", k))       # match key per municipality
-cat(sprintf("  Tree City USA municipalities: %s\n", format(nrow(ne), big.mark = ",")))  # <-- look: municipalities to classify
+cat(sprintf("  Tree City USA municipalities: %s\n", format(nrow(ne), big.mark = ",")))  # <-- municipalities to classify
 
 
-# STEP 8 -- worked single resolve(), by hand: one municipality ---------------
-# Assign a municipality its locale by matching its key to the reference. Tiers:
-#   exact              one incorporated geography matched
+# STEP 8 -- Assign a municipality its locale by matching its key to the reference ---------------
+#  Tiers:
+#   exact              one geography matched
 #   conflict-resolved  a place and a coincident township disagreed; resolved to
 #                      the preferred kind ("place" for the primary result)
 #   conflict-arbitrary still disagreed; lowest code taken
 #   cdp                matched only a census designated place (locates it, but
 #                      the CDP is not the governing entity)
 #   unmatched          no match; excluded
-# Work the first municipality through explicitly.
 s1 <- ne$State[1]; k1 <- ne$key[1]                                # first municipality's state and key
 inc1 <- ref[!ref$is_cdp & ref$State == s1 & ref$key == k1, ]      # incorporated (non-CDP) matches
-codes1 <- unique(inc1$LOCALE)                                     # distinct locale codes among them
-pref1  <- inc1[inc1$kind == "place", ]                            # the "place" candidates (primary preference)
+codes1 <- unique(inc1$LOCALE)                                     # distinct locale codes
+pref1  <- inc1[inc1$kind == "place", ]                            # "place" candidates (primary preference)
 c(state = s1, key = k1, n_incorporated = nrow(inc1),
-  n_distinct_codes = length(codes1))                              # <-- look: how this one municipality matched
+  n_distinct_codes = length(codes1))                              # <-- how this municipality matched
 
 
-# STEP 9 -- resolve every municipality: one minimal loop mirroring STEP 8 ----
+# STEP 9 -- resolve every municipality ----
 # Fills the primary locale + tier (prefer "place") and the sensitivity locale
-# (prefer "cousub"). Vectors are pre-allocated; the loop body is STEP 8 with the
-# tier decisions written out, run once per municipality.
+# (prefer "cousub")
 n <- nrow(ne)
 LOCALE     <- rep(NA_character_, n)                               # primary locale code
 match_tier <- rep(NA_character_, n)                               # tier used for the primary code
@@ -219,9 +209,7 @@ ne$urban_suburban <- ne$LOCALE %in% URBAN_SUBURBAN             # TRUE for City o
 
 
 # STEP 10 -- audit: match tiers and locale distribution ----------------------
-print("  match tiers:")
 print(table(ne$match_tier))                                    # <-- look: exact / conflict-resolved / cdp / unmatched counts
-print("  locale distribution:")
 loc_tab <- table(factor(ne$LOCALE, levels = names(LOCALE_LABEL)))  # ordered by locale code
 print(data.frame(code = names(loc_tab),
                  label = LOCALE_LABEL[names(loc_tab)],
@@ -230,7 +218,7 @@ print(data.frame(code = names(loc_tab),
                  row.names = NULL))                            # <-- look: City/Suburb/Town/Rural spread
 
 
-# STEP 11 -- headline City-or-Suburb count and the dedup sensitivity ---------
+# STEP 11 --City-or-Suburb count and de-duplication sensitivity ---------
 n_urb <- sum(ne$urban_suburban, na.rm = TRUE)                  # primary City-or-Suburb count
 cat(sprintf("\n  City or Suburb: %d of %d (%.0f%%)\n", n_urb, nrow(ne), n_urb / nrow(ne) * 100))
 n_alt <- sum(ne$LOCALE_alt %in% URBAN_SUBURBAN)               # same count if conflicts go to the township
@@ -240,11 +228,10 @@ if (length(unmatched))
   cat(sprintf("\n  unmatched (%d), excluded: %s\n", length(unmatched), paste(unmatched, collapse = ", ")))
 
 
-# STEP 12 -- write the per-municipality classification -----------------------
+# STEP 12 -- write municipality classifications -----------------------
 out <- ne[, c("Community", "State", "LOCALE", "locale_label", "urban_suburban",
               "match_tier", "LOCALE_alt")]                     # audit columns, one row per municipality
-View(out)                                                     # <-- look: full classification with tier per row
+View(out)                                                     # <-- view full classification with tier per row
 write.csv(out,
           "locale_classification.csv",
           row.names = FALSE)
-print("Written: output/locale_classification.csv")
