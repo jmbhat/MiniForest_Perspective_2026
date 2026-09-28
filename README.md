@@ -21,9 +21,7 @@ media_pipeline/       media dataset scripts (Steps 2-4)
 costs/                municipality cost analysis (README and data/)
 ```
 
-## Running it
-
-Run everything from the repository root.
+## Running the code
 
 ```bash
 Rscript figures_and_tables/01_Fig1_media_vs_research.R
@@ -32,10 +30,9 @@ Rscript figures_and_tables/03_TableS1_evidence_text.R
 Rscript figures_and_tables/04_FigS1_combined_evidence.R
 ```
 
-Each script writes its figures and tables into the directory you run it from; the
-repository tracks no generated output, and `.gitignore` keeps those files untracked.
+Each script writes its figures and tables into the directory you run it from; the repository tracks no generated output and `.gitignore` ensures that those files are untracked.
 
-**R** needs `tidyverse`, `readxl`, `ggplot2`, `svglite` and `ragg`.
+**R** needs packages `tidyverse`, `readxl`, `ggplot2`, `svglite` and `ragg`.
 
 **Python 3.10+** for the media pipeline: `pip install -r media_pipeline/requirements.txt`.
 Step 3 fetches live article URLs, so run it on a network that can reach news domains.
@@ -46,43 +43,32 @@ python media_pipeline/02_verify_bodies.py --xlsx data/Mini_Forest_merged_media_c
 python media_pipeline/03_media_merge_dedup.py data/Mini_Forest_merged_media_corpus.xlsx 'proquest/*.xls' --out merged.xlsx
 ```
 
-Run without `--out`, `01` and `03` instead report how closely they reproduce the stored
-corpus. `02` writes back into the input workbook.
-
 For the cost analysis, see [costs/README.md](costs/README.md); those three scripts run
 `01` → `03` → `02` and need public data files.
 
 ### A note on PDF fonts
 
-The figure scripts request `cairo_pdf` and fall back to base `pdf()` if cairo is
-unavailable. The fallback does **not** embed fonts. On macOS, cairo needs XQuartz
+The figure scripts request `cairo_pdf` and fall back to base `pdf()` if cairo is unavailable. The fallback does **not** embed fonts. On macOS, cairo needs XQuartz
 (`brew install --cask xquartz`); without it `capabilities("cairo")` can still report
 `TRUE` while the device fails during run.
 
 ## A note on terminology
 
-The plantings are called **Mini Forests** throughout this repository. The word "Miyawaki"
-is retained in three places, where changing it would be inaccurate or would break the code:
+The plantings are called **Mini Forests** throughout this repository. The word "Miyawaki" is retained in three places, where changing it would be inaccurate or would break the code:
 
 - **the media search term** — the MediaCloud and ProQuest queries searched for
-  `Miyawaki`, and the manuscript's Supplementary Methods reproduces those Boolean strings as run;
+  `Miyawaki`. The manuscript's Supplementary Methods reproduces those Boolean strings as run;
 - **classification values in the data** — `Miyawaki`, `Likely_Miyawaki`, `Not_Miyawaki`,
-  `About_Miyawaki`, `Likely_About_Miyawaki_RawHTML` are stored category labels in the
-  deposited workbooks, and the scripts match against them;
-- **published paper titles and the author name** in the academic corpus — 52 study
-  titles contain "Miyawaki", as does the citation "Miyawaki 1993", Akira Miyawaki's
-  own paper.
+  `About_Miyawaki`, `Likely_About_Miyawaki_RawHTML` are stored category labels in the deposited workbooks and the scripts require them;
+- **published paper titles and the author name** in the academic datasert, 52 study titles contain "Miyawaki", as does the citation "Miyawaki 1993", Akira Miyawaki's paper.
 
 ## Scope of this deposit
 
-This contains the code that produced the published results. Media Steps 2–4 are in `media_pipeline/`,
-Step 3's output (`Body_verified`) and the curated corpus are in the deposited workbook, and
-Steps 1 and 5 are manual (keyword searching and Excel curation respectively). The Step 2 and Step 4 scripts encode the rules given in the manuscript's Supplementary Methods (title-classifier categories; dedup keys).
+This contains the code that produced the published results. Media Steps 2–4 are in `media_pipeline/`. Steps 1 and 5 are manual (keyword searching and manual curation in Excel, respectively). 
 
 ## Data availability and provenance
 
-The three workbooks in `data/` are the working dataset reported in the manuscript. Costs for six of the eight Mini Forests are capital costs reported in published benefit–cost analyses of those projects, so that dataset is not independent of the grey
-literature; see `costs/README.md` for the full provenance and limitations.
+The three workbooks in `data/` are the working dataset reported in the manuscript. Costs for six of the eight Mini Forests are capital costs reported in published benefit–cost analyses of those projects; see `costs/README.md` for full provenance and limitations of that information.
 
 ## License
 
@@ -93,9 +79,4 @@ commercially, provided you give appropriate credit.
 Please cite the paper:
 
 > Bhatnagar, J.M., Hutyra, L.R., Raeber, M., Winbourne, J.B. & Templer, P.H.
-> Urban Mini Forests need evidence, not just enthusiasm. 
-
-Note that the media corpora are derived from MediaCloud and ProQuest International
-Newsstream records. The bibliographic metadata is redistributed here for
-reproducibility; the underlying article full texts remain the property of their
-publishers and are not included.
+> Mini Forests need evidence, not just enthusiasm. 
